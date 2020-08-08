@@ -343,6 +343,10 @@ def test_setcurve():
     count = en.getcurvelen(ph=epanet_proj, index=curve_index)
     assert count == 5
 
+   #TODO: def test_hyraulic():
+   # finish the code here (save the time step, head and demand of each node, and flow rate, length, diameter, and velocity of each pipe in to arrays, then print them out)
+   #TODO: def test_water_quality():
+   # finish the code here (save the time step, concentrations of nodes and links in to arrays, then print them out)
 
 if __name__ == '__main__':
     clean_dir()
