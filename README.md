@@ -5,3 +5,7 @@ This is a python wrapper for EPANET software, and the lib is in epanet folder wh
 With SWIG, this wrapper can be updated along with the source code of EPAENT project, and it would offer all functions EPAENT software has, but in the python version.
 
 We also provide several examples to illustrate how to use this wrapper.
+
+# how to use
+
+In Ubuntu 16.04, git clone this project, and simply run python3 main.py
