@@ -1,5 +1,1 @@
-Run unittests with:
-
-```python
-pytest test_owa_epanet.py
-```
+This is a test lib collecting all examples.
