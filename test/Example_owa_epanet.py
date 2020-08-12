@@ -413,11 +413,14 @@ def test_hydraulic():
     #in progress
 def test_water_quality():
     epanet_proj = en.createproject()
+    en.setqualtype(ph=epanet_proj, qualType=1, chemName='Chlorine', chemUnits='mg/L', traceNode=None)
     en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
     en.openH(ph=epanet_proj)
     en.initH(ph=epanet_proj, initFlag=0)
     en.solveH(ph=epanet_proj)
     tlist = []
+    node_cl_list = []
+    link_cl_list = []
     print('Printing hydraulic time step:')
     while True:
         en.runH(ph=epanet_proj)
@@ -429,13 +432,18 @@ def test_water_quality():
     assert tlist == timesteps
     num_nodes = en.getcount(ph=epanet_proj, object=en.NODECOUNT)
     num_links = en.getcount(ph=epanet_proj, object=en.LINKCOUNT)
-    en.MSXinit()
+    en.initQ(ph=epanet_proj)
     print('Printing concentration in nodes:')
-    
-    #for node_ind in range(1, num_nodes+1):
-        #concen = en.MSXgetqual(0, node_ind, )
-        #print('Node %d: %5.2f' % (node_ind, concen))
-        #node_concentration_list.append(concen)
+    for node_ind in range(1, num_nodes+1):
+        node_cl = en.getnodevalue(ph=epanet_proj, index=node_ind, property=en.QUALITY)
+        print('Node %d: %5.2f' % (node_ind, node_cl))
+        node_cl_list.append(node_cl)
+    print('Printing concentration in links:')
+    for link_ind in range(1, num_links+1):
+        link_cl = en.getnodevalue(ph=epanet_proj, index=link_ind, property=en.QUALITY)
+        print('Node %d: %5.2f' % (link_ind, link_cl))
+        link_cl_list.append(link_cl)
+    en.closeQ(ph=epanet_proj)
     en.closeH(ph=epanet_proj)
     en.close(ph=epanet_proj)
 
