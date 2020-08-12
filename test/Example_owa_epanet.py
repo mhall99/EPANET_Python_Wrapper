@@ -432,6 +432,7 @@ def test_water_quality():
     assert tlist == timesteps
     num_nodes = en.getcount(ph=epanet_proj, object=en.NODECOUNT)
     num_links = en.getcount(ph=epanet_proj, object=en.LINKCOUNT)
+    en.openQ(ph=epanet_proj)
     en.initQ(ph=epanet_proj)
     print('Printing concentration in nodes:')
     for node_ind in range(1, num_nodes+1):
