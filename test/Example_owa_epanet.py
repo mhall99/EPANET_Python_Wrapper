@@ -342,8 +342,8 @@ def test_setcurve():
     en.setcurve(ph=epanet_proj, index=curve_index, xValues=xvalues, yValues=yvalues, nPoints=5)
     count = en.getcurvelen(ph=epanet_proj, index=curve_index)
     assert count == 5
-    
-    #TODO: def test_hyraulic():
+
+   #TODO: def test_hyraulic():
    # finish the code here (save the time step, head and demand of each node, and flow rate, length, diameter, and velocity of each pipe in to arrays, then print them out)
    #mostly finished
 def test_hydraulic():
