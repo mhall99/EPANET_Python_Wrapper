@@ -345,8 +345,118 @@ def test_setcurve():
 
    #TODO: def test_hyraulic():
    # finish the code here (save the time step, head and demand of each node, and flow rate, length, diameter, and velocity of each pipe in to arrays, then print them out)
+   #mostly finished
+def test_hydraulic():
+    epanet_proj = en.createproject()
+    en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
+    en.openH(ph=epanet_proj)
+    en.initH(ph=epanet_proj, initFlag=0)
+    num_nodes = en.getcount(ph=epanet_proj, object=en.NODECOUNT)
+    num_links = en.getcount(ph=epanet_proj, object=en.LINKCOUNT)
+    tlist = []
+    head_list = []
+    demand_list = []
+    flow_list = []
+    length_list = []
+    diam_list = []
+    vel_list = []
+    print('Printing hydraulic time step:')
+    while True:
+        en.runH(ph=epanet_proj)
+        t = en.nextH(ph=epanet_proj)
+        print(t)
+        tlist.append(t)
+        if t <= 0:
+            break
+    assert tlist == timesteps
+    print('Printing demand in nodes:')
+    for node_ind in range(1, num_nodes+1):
+        en.runH(ph=epanet_proj)
+        demand = en.getnodevalue(ph=epanet_proj, index=node_ind, property=en.BASEDEMAND)
+        print('Node %d: %5.2f' % (node_ind, demand))
+        demand_list.append(demand)
+    print('Printing head in nodes:')
+    for node_ind in range(1, num_nodes+1):
+        en.runH(ph=epanet_proj)
+        head = en.getnodevalue(ph=epanet_proj, index=node_ind, property=en.HEAD)
+        print('Node %d: %5.2f' % (node_ind, head))
+        head_list.append(head)
+    print('Printing flowrate in links:')
+    for link_ind in range(1, num_links+1):
+        en.runH(ph=epanet_proj)
+        flow = en.getlinkvalue(ph=epanet_proj, index=link_ind, property=en.FLOW)
+        print('Link %d: %5.2f' % (link_ind, flow))
+        flow_list.append(flow)
+    print('Printing length of links:')
+    for link_ind in range(1, num_links+1):
+        en.runH(ph=epanet_proj)
+        length = en.getlinkvalue(ph=epanet_proj, index=link_ind, property=en.LENGTH)
+        print('Link %d: %5.2f' % (link_ind, length))
+        length_list.append(length)
+    print('Printing diameter of links:')
+    for link_ind in range(1, num_links+1):
+        en.runH(ph=epanet_proj)
+        diam = en.getlinkvalue(ph=epanet_proj, index=link_ind, property=en.DIAMETER)
+        print('Link %d: %5.2f' % (link_ind, diam))
+        diam_list.append(diam)
+    print('Printing velocity in links:')
+    for link_ind in range(1, num_links+1):
+        en.runH(ph=epanet_proj)
+        vel = en.getlinkvalue(ph=epanet_proj, index=link_ind, property=en.VELOCITY)
+        print('Link %d: %5.2f' % (link_ind, vel))
+        vel_list.append(vel)
+    en.closeH(ph=epanet_proj)
+    en.close(ph=epanet_proj)
+    clean_dir()
    #TODO: def test_water_quality():
    # finish the code here (save the time step, concentrations of nodes and links in to arrays, then print them out)
+    #in progress
+def test_water_quality():
+    epanet_proj = en.createproject()
+    en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
+    en.setqualtype(ph=epanet_proj, qualType=1, chemName='Chlorine', chemUnits='mg/L', traceNode=None)
+    num_nodes = en.getcount(ph=epanet_proj, object=en.NODECOUNT)
+    num_links = en.getcount(ph=epanet_proj, object=en.LINKCOUNT)
+    tlist = []
+    node_cl_list = []
+    link_cl_list = []
+    en.openH(ph=epanet_proj)
+    en.initH(ph=epanet_proj, initFlag=0)
+    print('Printing hydraulic time step:')
+    while True:
+        en.runH(ph=epanet_proj)
+        t = en.nextH(ph=epanet_proj)
+        print(t)
+        tlist.append(t)
+        if t <= 0:
+            break
+    assert tlist == timesteps
+    en.openQ(ph=epanet_proj)
+    en.initQ(ph=epanet_proj, saveFlag=1)
+    print('Printing chlorine concentration in nodes:')
+    while True:
+        en.runQ(ph=epanet_proj)
+        t = en.nextQ(ph=epanet_proj)
+        for i in range(1, num_nodes+1):
+            node_qual = en.getnodevalue(ph=epanet_proj, index=i, property=en.QUALITY)
+            print('Node %d: %5.2f' % (i, node_qual))
+            node_cl_list.append(node_qual)
+        if t <= 0:
+            break
+    print('Printing chlorine concentration in links:')
+    while True:
+        en.runQ(ph=epanet_proj)
+        t = en.nextQ(ph=epanet_proj)
+        for i in range(1, num_links+1):
+            link_qual = en.getlinkvalue(ph=epanet_proj, index=i, property=en.QUALITY)
+            print('Node %d: %5.2f' % (i, link_qual))
+            link_cl_list.append(link_qual)
+        if t <= 0:
+            break
+    en.closeH(ph=epanet_proj)
+    en.closeQ(ph=epanet_proj)
+    en.close(ph=epanet_proj)
+    clean_dir()
 
 if __name__ == '__main__':
     clean_dir()
