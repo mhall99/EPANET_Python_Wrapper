@@ -343,9 +343,8 @@ def test_setcurve():
     count = en.getcurvelen(ph=epanet_proj, index=curve_index)
     assert count == 5
 
-   #TODO: def test_hyraulic():
-   # finish the code here (save the time step, head and demand of each node, and flow rate, length, diameter, and velocity of each pipe in to arrays, then print them out)
-   #mostly finished
+   #saves the time step, head and demand of each node, and flow rate, length, diameter, and velocity of each pipe in to arrays, then prints them out
+   #finished (needs polish)
 def test_hydraulic():
     epanet_proj = en.createproject()
     en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
@@ -408,9 +407,9 @@ def test_hydraulic():
     en.closeH(ph=epanet_proj)
     en.close(ph=epanet_proj)
     clean_dir()
-   #TODO: def test_water_quality():
-   # finish the code here (save the time step, concentrations of nodes and links in to arrays, then print them out)
-    #in progress
+   
+   #saves the time step, concentrations of nodes and links in to arrays, then prints them out
+    #finished (needs polish)
 def test_water_quality():
     epanet_proj = en.createproject()
     en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
@@ -457,6 +456,9 @@ def test_water_quality():
     en.closeQ(ph=epanet_proj)
     en.close(ph=epanet_proj)
     clean_dir()
+
+#TODO: def test_water_quality():
+#TODO: def test_water_quality():
 
 if __name__ == '__main__':
     clean_dir()
