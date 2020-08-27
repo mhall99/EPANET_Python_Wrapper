@@ -457,9 +457,6 @@ def test_water_quality():
     en.close(ph=epanet_proj)
     clean_dir()
 
-#TODO: def test_water_quality():
-#TODO: def test_water_quality():
-
 if __name__ == '__main__':
     clean_dir()
     print('EPANET: trying to run project!')
