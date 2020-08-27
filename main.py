@@ -13,5 +13,6 @@ if __name__ == '__main__':
     #Example_owa_epanet.test_inith_runh_nexth()
     #Example_owa_epanet.test_hydraulic()
     #Example_owa_epanet.test_water_quality()
-    Chlorine_owa_epanet.inject_chlorine()
+    #injects 10mg of chlorine at nodeID 2 
+    Chlorine_owa_epanet.inject_chlorine('2', 10)
     #Chlorine_owa_epanet.test_water_quality()
