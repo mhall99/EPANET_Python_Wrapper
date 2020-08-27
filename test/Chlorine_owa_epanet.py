@@ -29,8 +29,6 @@ def inject_chlorine():
     num_nodes = en.getcount(ph=epanet_proj, object=en.NODECOUNT)
     num_links = en.getcount(ph=epanet_proj, object=en.LINKCOUNT)
     tlist = []
-    node_cl_list = []
-    link_cl_list = []
     en.openH(ph=epanet_proj)
     en.initH(ph=epanet_proj, initFlag=0)
     print('Printing hydraulic time step:')
@@ -43,11 +41,14 @@ def inject_chlorine():
             break
     assert tlist == timesteps 
     en.openQ(ph=epanet_proj)
-    en.setnodevalue(ph=epanet_proj, index=2, property=en.SOURCEQUAL, value=10)
+    node_2 = en.getnodeindex(ph=epanet_proj, id='2')
+    print('Node 2 index is %d' % (node_2))
+    en.setnodevalue(ph=epanet_proj, index=node_2, property=en.MASS, value=100)
     en.initQ(ph=epanet_proj, saveFlag=1)
-    #node_qual = en.getnodevalue(ph=epanet_proj, index=node_ind, property=en.QUALITY)
-    #print('Node 2: %5.2f' % (node_qual))
-    print('Printing chlorine concentration in nodes')
+    #getnodevalue gives Error 240: function call contains nonexistent source
+    node_qual = en.getnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCEMASS)
+    print('Node 2: %5.2f' % (node_qual)) 
+    '''print('Printing chlorine concentration in nodes')
     while True:
         en.runQ(ph=epanet_proj)
         t = en.nextQ(ph=epanet_proj)
@@ -55,7 +56,7 @@ def inject_chlorine():
             node_qual = en.getnodevalue(ph=epanet_proj, index=i, property=en.QUALITY)
             print('Node %d: %5.2f' % (i, node_qual))
         if t <= 0:
-            break
+            break'''
     en.closeH(ph=epanet_proj)
     en.closeQ(ph=epanet_proj)
     en.close(ph=epanet_proj)
