@@ -43,20 +43,21 @@ def inject_chlorine():
     en.openQ(ph=epanet_proj)
     node_2 = en.getnodeindex(ph=epanet_proj, id='2')
     print('Node 2 index is %d' % (node_2))
-    en.setnodevalue(ph=epanet_proj, index=node_2, property=en.MASS, value=100)
+    #sets node 2 as Mass Booster 
+    en.setnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCETYPE, value=1)
+    en.setnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCEQUAL, value=10)
     en.initQ(ph=epanet_proj, saveFlag=1)
-    #getnodevalue gives Error 240: function call contains nonexistent source
-    node_qual = en.getnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCEMASS)
+    node_qual = en.getnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCEQUAL)
     print('Node 2: %5.2f' % (node_qual)) 
-    '''print('Printing chlorine concentration in nodes')
+    print('Printing chlorine concentration in nodes')
     while True:
         en.runQ(ph=epanet_proj)
         t = en.nextQ(ph=epanet_proj)
         for i in range(1, num_nodes+1):
-            node_qual = en.getnodevalue(ph=epanet_proj, index=i, property=en.QUALITY)
+            node_qual = en.getnodevalue(ph=epanet_proj, index=i, property=en.MASS)
             print('Node %d: %5.2f' % (i, node_qual))
         if t <= 0:
-            break'''
+            break
     en.closeH(ph=epanet_proj)
     en.closeQ(ph=epanet_proj)
     en.close(ph=epanet_proj)
