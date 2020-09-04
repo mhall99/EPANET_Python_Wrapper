@@ -12,6 +12,21 @@ def clean_dir():
     if os.path.exists('saved_inp_file.inp'):
         os.remove('saved_inp_file.inp')
 
+class QualityControl:
+
+    def __init__(self, nodetype):
+        ## private varible or property in Python
+        self.__nodetype = nodetype
+
+    ## getter method to get the nodetype property using an object
+    def get_nodetype(self):
+        return self.__nodetype
+
+    ## setter method to change the value 'nodetype' using an object
+    def set_nodetype(self, nodetype):
+        self.__nodetype = nodetype
+
+
 def inject_chlorine(str_nodeID, booster_val):
     epanet_proj = en.createproject()
     en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
@@ -27,6 +42,10 @@ def inject_chlorine(str_nodeID, booster_val):
     #sets node as Mass Booster 
     en.setnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCETYPE, value=1)
     en.setnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCEQUAL, value=booster_val)
+    nodetype = en.getnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCETYPE)
+    obj = QualityControl(1) #seems to set nodetype to 1
+    #obj.set_nodetype(1) runs automatically 
+    print(obj.get_nodetype()) #checking
     en.initQ(ph=epanet_proj, saveFlag=1)
     node_qual = en.getnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCEQUAL)
     print('Booster node source quality: %5.2f' % (node_qual)) 
