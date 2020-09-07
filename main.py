@@ -5,10 +5,14 @@
 
 from test import *
 from test import Example_owa_epanet
+from test import Chlorine_owa_epanet
 from test.data import *
 if __name__ == '__main__':
     Example_owa_epanet.test_run_project()
     Example_owa_epanet.test_get_count()
-    Example_owa_epanet.test_inith_runh_nexth()
-    #TODO: Example_owa_epanet.test_hydraulic()
-    #TODO: Example_owa_epanet.test_water_quality()
+    #Example_owa_epanet.test_inith_runh_nexth()
+    #Example_owa_epanet.test_hydraulic()
+    #Example_owa_epanet.test_water_quality()
+    #injects 10mg of chlorine at nodeID 2 
+    Chlorine_owa_epanet.inject_chlorine('2', 10)
+    #Chlorine_owa_epanet.test_water_quality()

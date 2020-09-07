@@ -18,3 +18,6 @@ Run "bash Install_owa_eapent.sh", and update the epanet python wrapper in this r
 # How to use?
 
 In Ubuntu 16.04, git clone this project, and simply run python3 main.py
+
+test
+
