@@ -24,7 +24,7 @@ class QualityControl:
 
     ## setter method to change the value 'nodetype' using an object
     def set_nodetype(self, nodetype):
-        self.__nodetype = nodetype
+        self.__nodetype = inject_chlorine.nodetype #dunno if this will help
 
 
 def inject_chlorine(str_nodeID, booster_val):
