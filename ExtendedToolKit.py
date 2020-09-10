@@ -1,4 +1,14 @@
-import epanet.toolkit as en
+import sys
+if 'linux' in sys.platform:
+    print("linux platform")
+    import epanet.toolkit as en
+elif 'darwin' in sys.platform:
+    print("mac")
+    import epanetMac.toolkit as en
+else:
+    raise RuntimeError("Unsupported operating system: {}".format(sys.platform))
+
+
 from test.data import example_1_path
 import numpy as np
 import matplotlib.pyplot as plt
