@@ -124,7 +124,7 @@ class Prj:
         nodeActualDemand = list()
         for i in value:
             # print(i)
-            type = en.getnodevalue(ph=self.epanet_proj, index=i, property=en.BASEDEMAND)
+            type = en.getnodevalue(ph=self.epanet_proj, index=i, property=en.DEMAND)
             # print(type)
             nodeActualDemand.append(type)
         return nodeActualDemand
@@ -216,15 +216,16 @@ class Prj:
 
     def nextHydraulicAnalysisStep(self):
         t = en.nextH(ph=self.epanet_proj)
-        print(t)
+        #print(t)
         return t
 
     def runHydraulicAnalysis(self):
         en.runH(ph=self.epanet_proj)
 
+    def solveCompleteHydraulics(self):
+        en.solveH(ph=self.epanet_proj)
+
     def openQualityAnalysis(self):
-        en.openH(ph=self.epanet_proj)
-        en.initH(ph=self.epanet_proj, initFlag=0)
         en.openQ(ph=self.epanet_proj)
 
     def initializeQualityAnalysis(self):
@@ -351,14 +352,14 @@ if __name__ == "__main__":
             labelstring = 'R' + proj.NodeID[nodei]
         if(proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.plot(range(0,counterH),H[nodei],label=labelstring)
+        plt.step(range(0,counterH),H[nodei],label=labelstring)
 
     plt.title('Heads at all nodes')
     plt.xlabel('Time (hour)')
     plt.ylabel('Head (ft)')
     plt.legend()
     print('close the figure to continue...')
-    plt.show()
+    #plt.show()
     fig1.savefig('head.png')
 
     # plot flow rates
@@ -370,14 +371,14 @@ if __name__ == "__main__":
             labelstring = 'Pu' + proj.LinkID[linki]
         else:
             labelstring = 'V' + proj.LinkID[linki]
-        plt.plot(range(0,counterH),Q[linki],label=labelstring)
+        plt.step(range(0,counterH),Q[linki],label=labelstring)
 
     plt.title('Flow rates at all links')
     plt.xlabel('Time (hour)')
     plt.ylabel('Flow (GPM)')
     plt.legend()
     print('close the figure to continue...')
-    plt.show()
+    #plt.show()
     fig2.savefig('Flow.png')
 
     # todo: plot demand for all nodes (DONE!)
@@ -390,14 +391,14 @@ if __name__ == "__main__":
             labelstring = 'R' + proj.NodeID[nodei]
         if(proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.plot(range(0,counterH),D[nodei],label=labelstring)
+        plt.step(range(0,counterH),D[nodei],label=labelstring)
 
     plt.title('Demand at all nodes')
     plt.xlabel('Time (hour)')
     plt.ylabel('Demand (GPM)')
     plt.legend()
     print('close the figure to continue...')
-    plt.show()
+    #plt.show()
     fig3.savefig('demand.png')
 
 
@@ -411,6 +412,7 @@ if __name__ == "__main__":
     T_Q = list()
     time_HOURS= 30
     C = np.zeros(shape=(proj.NodeCount,time_HOURS))
+    proj.solveCompleteHydraulics()
     proj.openQualityAnalysis()
     proj.initializeQualityAnalysis()
     while True:
@@ -420,8 +422,8 @@ if __name__ == "__main__":
         #print(chlorine)
         C[:, counterQ] = chlorine
         counterQ = counterQ + 1
-        tstep = proj.nextQualityAnalysisStep() #gives tstep=0, implying it is at the end of full simulation duration (not true!)
-        T_Q.append(tstep) 
+        tstep = proj.nextQualityAnalysisStep()
+        T_Q.append(tstep)
         if tstep <= 0:
             break
 
@@ -445,7 +447,7 @@ if __name__ == "__main__":
             labelstring = 'R' + proj.NodeID[nodei]
         if(proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.plot(range(0,counterQ),C[nodei],label=labelstring)
+        plt.step(range(0,counterQ),C[nodei],label=labelstring)
 
     plt.title('Quality at all nodes')
     plt.xlabel('Time (hour)')
