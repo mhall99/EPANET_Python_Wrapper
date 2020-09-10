@@ -370,7 +370,7 @@ if __name__ == "__main__":
             break
 
     proj.closeHydraulicAnalysis()
-    proj.closeHydraulicAnalysis()
+    proj.closeQualityAnalysis()
     print('Hydraulic/Quality simulation ends')
     print('_______________________________')
     #print(H)
