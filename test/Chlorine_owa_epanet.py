@@ -21,8 +21,9 @@ def clean_dir():
     if os.path.exists('saved_inp_file.inp'):
         os.remove('saved_inp_file.inp')
 
-#injects chlorine at node 2
-def inject_chlorine():
+#injects chlorine at given node with given amount
+#current changes not reflected in project file, reset after function call 
+def inject_chlorine(str_nodeID, booster_val):
     epanet_proj = en.createproject()
     en.open(ph=epanet_proj, inpFile=example_1_path, rptFile='report.rpt', outFile='output.out')
     en.setqualtype(ph=epanet_proj, qualType=1, chemName='Chlorine', chemUnits='mg/L', traceNode=None)
@@ -31,33 +32,15 @@ def inject_chlorine():
     tlist = []
     en.openH(ph=epanet_proj)
     en.initH(ph=epanet_proj, initFlag=0)
-    print('Printing hydraulic time step:')
-    while True:
-        en.runH(ph=epanet_proj)
-        t = en.nextH(ph=epanet_proj)
-        print(t)
-        tlist.append(t)
-        if t <= 0:
-            break
-    assert tlist == timesteps 
     en.openQ(ph=epanet_proj)
-    node_2 = en.getnodeindex(ph=epanet_proj, id='2')
-    print('Node 2 index is %d' % (node_2))
-    #sets node 2 as Mass Booster 
-    en.setnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCETYPE, value=1)
-    en.setnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCEQUAL, value=10)
+    booster_node = en.getnodeindex(ph=epanet_proj, id=str_nodeID)
+    print('Booster node index is %d' % (booster_node))
+    #sets node as Mass Booster 
+    en.setnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCETYPE, value=1)
+    en.setnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCEQUAL, value=booster_val)
     en.initQ(ph=epanet_proj, saveFlag=1)
-    node_qual = en.getnodevalue(ph=epanet_proj, index=node_2, property=en.SOURCEQUAL)
-    print('Node 2: %5.2f' % (node_qual)) 
-    print('Printing chlorine concentration in nodes')
-    while True:
-        en.runQ(ph=epanet_proj)
-        t = en.nextQ(ph=epanet_proj)
-        for i in range(1, num_nodes+1):
-            node_qual = en.getnodevalue(ph=epanet_proj, index=i, property=en.MASS)
-            print('Node %d: %5.2f' % (i, node_qual))
-        if t <= 0:
-            break
+    node_qual = en.getnodevalue(ph=epanet_proj, index=booster_node, property=en.SOURCEQUAL)
+    print('Booster node source quality: %5.2f' % (node_qual)) 
     en.closeH(ph=epanet_proj)
     en.closeQ(ph=epanet_proj)
     en.close(ph=epanet_proj)

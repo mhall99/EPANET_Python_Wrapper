@@ -6,6 +6,7 @@
 from test import *
 from test import Example_owa_epanet
 from test import Chlorine_owa_epanet
+from test import SourceQual_owa_epanet
 from test.data import *
 if __name__ == '__main__':
     Example_owa_epanet.test_run_project()
@@ -14,5 +15,7 @@ if __name__ == '__main__':
     #Example_owa_epanet.test_hydraulic()
     #Example_owa_epanet.test_water_quality()
     #injects 10mg of chlorine at nodeID 2 
-    Chlorine_owa_epanet.inject_chlorine('2', 10)
+    SourceQual_owa_epanet.inject_chlorine('2', 10)
+    #SourceQual_owa_epanet.setNodeSourceQuality('2', 10)
+    #SourceQual_owa_epanet.getNodeSourceQuality(11)
     #Chlorine_owa_epanet.test_water_quality()

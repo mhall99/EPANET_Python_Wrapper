@@ -119,6 +119,25 @@ class Prj:
             nodeID.append(type)
         return nodeID
 
+    def getNodeActualDemand(self): #todo establish actualdemand list (DONE!)
+        value = range(1, self.NodeCount + 1)
+        nodeActualDemand = list()
+        for i in value:
+            # print(i)
+            type = en.getnodevalue(ph=self.epanet_proj, index=i, property=en.BASEDEMAND)
+            # print(type)
+            nodeActualDemand.append(type)
+        return nodeActualDemand
+
+    def getNodeQuality(self): #finds chlorine concentration
+        C = np.zeros(shape=self.NodeCount)
+        for i in self.NodeIndex:
+            # print(i)
+            quality = en.getnodevalue(ph=self.epanet_proj, index=i, property=en.QUALITY)
+            # print(quality)
+            C[i-1] = quality
+        return C
+
     def getLinkID(self):
         value = range(1, self.LinkCount + 1)
         # print(value)
@@ -204,17 +223,20 @@ class Prj:
         en.runH(ph=self.epanet_proj)
 
     def openQualityAnalysis(self):
+        en.openH(ph=self.epanet_proj)
+        en.initH(ph=self.epanet_proj, initFlag=0)
         en.openQ(ph=self.epanet_proj)
 
     def initializeQualityAnalysis(self):
-        en.initQ(ph=self.epanet_proj, initFlag=0)
+        en.initQ(ph=self.epanet_proj, saveFlag=1)
 
     def closeQualityAnalysis(self):
         en.closeQ(ph=self.epanet_proj)
 
     def nextQualityAnalysisStep(self):
-        tQ = en.nextQ(ph=self.epanet_proj)
-        return tQ
+        t = en.nextQ(ph=self.epanet_proj)
+        print(t)
+        return t
 
     def runQualityAnalysis(self):
         en.runQ(ph=self.epanet_proj)
@@ -293,11 +315,11 @@ if __name__ == "__main__":
         proj.runHydraulicAnalysis()
         head = proj.getNodeHydaulicHead()
         flow = proj.getLinkFlow()
-        # todo demand = proj。getNodeActualDemand()
+        demand = proj.getNodeActualDemand() 
         #print(head)
         H[:, counterH] = head
         Q[:, counterH] = flow
-        # todo D[:, counterH] = demand
+        D[:, counterH] = demand 
         counterH = counterH + 1
         tstep = proj.nextHydraulicAnalysisStep()
         T_H.append(tstep)
@@ -316,7 +338,7 @@ if __name__ == "__main__":
     # organize data and only keep nonzero data
     H = H[:,0:counterH]
     Q = Q[:,0:counterH]
-
+    D = D[:,0:counterH]
     #print(counterH)
     #print(H[0])
 
@@ -358,13 +380,80 @@ if __name__ == "__main__":
     plt.show()
     fig2.savefig('Flow.png')
 
-    # todo: plot demand for all nodes
+    # todo: plot demand for all nodes (DONE!)
+    # plot demand for all nodes
+    fig3 = plt.figure()
+    for nodei in range(0,proj.NodeCount):
+        if(proj.NodeTypeIndex[nodei] == 0):
+            labelstring = 'J' + proj.NodeID[nodei]
+        if(proj.NodeTypeIndex[nodei] == 1):
+            labelstring = 'R' + proj.NodeID[nodei]
+        if(proj.NodeTypeIndex[nodei] == 2):
+            labelstring = 'TK' + proj.NodeID[nodei]
+        plt.plot(range(0,counterH),D[nodei],label=labelstring)
+
+    plt.title('Demand at all nodes')
+    plt.xlabel('Time (hour)')
+    plt.ylabel('Demand (GPM)')
+    plt.legend()
+    print('close the figure to continue...')
+    plt.show()
+    fig3.savefig('demand.png')
 
 
     print('Start quality simulation:')
     print('_______________________________')
     # todo: finish quality simulation and collect the concentration at all nodes and in all links
     # todo: plot chlorine concentration  for all nodes and links
+
+    counterQ = 0
+    tstep = 1
+    T_Q = list()
+    time_HOURS= 30
+    C = np.zeros(shape=(proj.NodeCount,time_HOURS))
+    proj.openQualityAnalysis()
+    proj.initializeQualityAnalysis()
+    while True:
+        #print(tstep)
+        proj.runQualityAnalysis()
+        chlorine = proj.getNodeQuality()
+        #print(chlorine)
+        C[:, counterQ] = chlorine
+        counterQ = counterQ + 1
+        tstep = proj.nextQualityAnalysisStep() #gives tstep=0, implying it is at the end of full simulation duration (not true!)
+        T_Q.append(tstep) 
+        if tstep <= 0:
+            break
+
+    proj.closeQualityAnalysis()
+    print('Quality simulation ends')
+    print('_______________________________')
+    print(counterQ) #only has a 1 in it, due to loop only iterating once
+    print(T_Q) #has a 0 in it, causing the break above
+    print('Organize data and plot:')
+    print('_______________________________')
+
+    # organize data and only keep nonzero data
+    C = C[:,0:counterQ]
+
+    # plot quality for all nodes
+    fig4 = plt.figure()
+    for nodei in range(0,proj.NodeCount):
+        if(proj.NodeTypeIndex[nodei] == 0):
+            labelstring = 'J' + proj.NodeID[nodei]
+        if(proj.NodeTypeIndex[nodei] == 1):
+            labelstring = 'R' + proj.NodeID[nodei]
+        if(proj.NodeTypeIndex[nodei] == 2):
+            labelstring = 'TK' + proj.NodeID[nodei]
+        plt.plot(range(0,counterQ),C[nodei],label=labelstring)
+
+    plt.title('Quality at all nodes')
+    plt.xlabel('Time (hour)')
+    plt.ylabel('Chlorine (mg/L)')
+    plt.legend()
+    print('close the figure to continue...')
+    plt.show()
+    fig4.savefig('quality.png')
 
 
 
