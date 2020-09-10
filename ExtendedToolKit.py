@@ -319,35 +319,59 @@ if __name__ == "__main__":
 
 
     print('Total curve count is:', proj.CurveCount)
-    print('Start hydraulic simulation:')
+    print('Start hydraulic/quality simulation:')
     print('_______________________________')
     counterH = 0
     tstep = 1
     T_H = list()
+
+    #counterQ = 0
+    qstep = 1
+    T_Q = list()
+
     time_HOURS= 30
+
     D = np.zeros(shape=(proj.NodeCount,time_HOURS))
     H = np.zeros(shape=(proj.NodeCount,time_HOURS))
     Q = np.zeros(shape=(proj.LinkCount,time_HOURS))
+    Cn = np.zeros(shape=(proj.NodeCount,time_HOURS))
+    Cl = np.zeros(shape=(proj.LinkCount,time_HOURS))
+
     proj.openHydraulicAnalysis()
+    proj.openQualityAnalysis()
     proj.initializeHydraulicAnalysis()
+    proj.initializeQualityAnalysis() #below function fails with segmentation fault (core dumped)
+
     while True:
         #print(tstep)
         proj.runHydraulicAnalysis()
+        proj.runQualityAnalysis()
         head = proj.getNodeHydaulicHead()
         flow = proj.getLinkFlow()
         demand = proj.getNodeActualDemand() 
         #print(head)
+        chlorineN = proj.getNodeQuality()
+        chlorineL = proj.getLinkQuality()
+        #print(chlorine)
         H[:, counterH] = head
         Q[:, counterH] = flow
-        D[:, counterH] = demand 
+        D[:, counterH] = demand
+        Cn[:, counterH] = chlorineN
+        Cl[:, counterH] = chlorineL
+        #counterQ = counterQ + 1 
         counterH = counterH + 1
         tstep = proj.nextHydraulicAnalysisStep()
+        qstep = proj.nextQualityAnalysisStep()
         T_H.append(tstep)
+        T_Q.append(qstep)
         if tstep <= 0:
+            break
+        if qstep <= 0:
             break
 
     proj.closeHydraulicAnalysis()
-    print('Hydraulic simulation ends')
+    proj.closeHydraulicAnalysis()
+    print('Hydraulic/Quality simulation ends')
     print('_______________________________')
     #print(H)
     #print(Q)
@@ -359,6 +383,8 @@ if __name__ == "__main__":
     H = H[:,0:counterH]
     Q = Q[:,0:counterH]
     D = D[:,0:counterH]
+    Cn = Cn[:,0:counterH]
+    Cl = Cl[:,0:counterH]
     #print(counterH)
     #print(H[0])
 
@@ -421,13 +447,14 @@ if __name__ == "__main__":
     fig3.savefig('demand.png')
 
 
-    print('Start quality simulation:')
+    '''print('Start quality simulation:')
     print('_______________________________')
     # todo: finish quality simulation and collect the concentration at all nodes and in all links
     # todo: plot chlorine concentration  for all nodes and links
 
     counterQ = 0
     tstep = 1
+    qstep = 1
     T_Q = list()
     time_HOURS= 30
     Cn = np.zeros(shape=(proj.NodeCount,time_HOURS))
@@ -444,7 +471,8 @@ if __name__ == "__main__":
         Cn[:, counterQ] = chlorineN
         Cl[:, counterQ] = chlorineL
         counterQ = counterQ + 1
-        tstep = proj.nextQualityAnalysisStep()
+        qstep = proj.nextQualityAnalysisStep()
+        tstep = proj.nextHydraulicAnalysisStep()
         T_Q.append(tstep)
         if tstep <= 0:
             break
@@ -452,14 +480,14 @@ if __name__ == "__main__":
     proj.closeQualityAnalysis()
     print('Quality simulation ends')
     print('_______________________________')
-    print(counterQ) #only has a 1 in it, due to loop only iterating once
-    print(T_Q) #has a 0 in it, causing the break above
+    print(counterQ) 
+    print(T_Q) 
     print('Organize data and plot:')
     print('_______________________________')
 
     # organize data and only keep nonzero data
     Cn = Cn[:,0:counterQ]
-    Cl = Cl[:,0:counterQ]
+    Cl = Cl[:,0:counterQ]'''
 
     # plot quality for all nodes
     fig4 = plt.figure()
@@ -470,7 +498,7 @@ if __name__ == "__main__":
             labelstring = 'R' + proj.NodeID[nodei]
         if(proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.step(range(0,counterQ),Cn[nodei],label=labelstring)
+        plt.step(range(0,counterH),Cn[nodei],label=labelstring)
 
     plt.title('Quality at all nodes')
     plt.xlabel('Time (hour)')
@@ -501,7 +529,7 @@ if __name__ == "__main__":
             labelstring = 'TCV' + proj.LinkID[nodei]
         if(proj.LinkTypeIndex[nodei] == 8):
             labelstring = 'GPV' + proj.LinkID[nodei]
-        plt.step(range(0,counterQ),Cl[nodei],label=labelstring)
+        plt.step(range(0,counterH),Cl[nodei],label=labelstring)
 
     plt.title('Quality at all links')
     plt.xlabel('Time (hour)')
