@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
-
+import sys
 import os
-import epanet.toolkit as en
+if 'linux' in sys.platform:
+    print("linux platform")
+    import epanet.toolkit as en
+elif 'darwin' in sys.platform:
+    print("mac")
+    import epanetMac.toolkit as en
+else:
+    raise RuntimeError("Unsupported operating system: {}".format(sys.platform))
+
 from test.data import example_1_path
 
 def clean_dir():

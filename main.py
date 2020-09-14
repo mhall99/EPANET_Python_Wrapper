@@ -16,6 +16,6 @@ if __name__ == '__main__':
     #Example_owa_epanet.test_water_quality()
     #injects 10mg of chlorine at nodeID 2 
     SourceQual_owa_epanet.inject_chlorine('2', 10)
-    #SourceQual_owa_epanet.setNodeSourceQuality('2', 10)
+    SourceQual_owa_epanet.setNodeSourceQuality('2', 10)
     #SourceQual_owa_epanet.getNodeSourceQuality(11)
     #Chlorine_owa_epanet.test_water_quality()
