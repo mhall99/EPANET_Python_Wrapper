@@ -29,7 +29,7 @@ class Prj:
         TYPEQUALITY = ['NONE', 'CHEM', 'AGE', 'TRACE',
                        'MULTIS']  # Constants for quality: 'NONE', 'CHEM', 'AGE', 'TRACE', 'MULTIS'
         TYPEREPORT = ['YES', 'NO', 'FULL']  # Constants for report: 'YES', 'NO', 'FULL'
-        TYPESOURCE = ['CONCEN', 'MASS', 'SETPOINT',
+        self.TYPESOURCE = ['CONCEN', 'MASS', 'SETPOINT',
                       'FLOWPACED']  # Constant for sources: 'CONCEN', 'MASS', 'SETPOINT', 'FLOWPACED'
         TYPESTATS = ['NONE', 'AVERAGE', 'MINIMUM', 'MAXIMUM',
                      'RANGE']  # Constants for statistics: 'NONE', 'AVERAGE', 'MINIMUM', 'MAXIMUM', 'RANGE'
@@ -261,12 +261,6 @@ class Prj:
     def runQualityAnalysis(self):
         en.runQ(ph=self.epanet_proj)
 
-    def setSource(self, nodei): #sets node as mass injector source
-        en.setnodevalue(ph=self.epanet_proj, index=nodei, property=en.SOURCETYPE, value=1)
-
-    def setSourceValue(self, nodei, val): #sets source node value (mg/L)
-        en.setnodevalue(ph=self.epanet_proj, index=nodei, property=en.SOURCEQUAL, value=val)
-
     def getNodeHydaulicHead(self):
         H = np.zeros(shape=self.NodeCount)
         for i in self.NodeIndex:
@@ -280,6 +274,45 @@ class Prj:
             flow = en.getlinkvalue(ph=self.epanet_proj, index=i, property= en.FLOW)
             Q[i-1] = flow
         return Q
+
+    def setNodeSourceType(self, nodeID, sourceType):
+        """
+        Set the node with  nodeID as the quality source type value
+        0. CONCEN
+        1. MASS
+        2. SETPOINT
+        3. FLOWPACED
+        """
+        index = self.getNodeIndexbyID(nodeID)
+        en.setnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCETYPE, value=sourceType)
+
+    def setNodeSourceQuality(self, nodeID, sourceStrength):
+        """
+        Set the node with  nodeID as the quality source type value
+        """
+        index = self.getNodeIndexbyID(nodeID)
+        en.setnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCEQUAL, value=sourceStrength)
+
+    def setNodeSourceType_Quality(self, nodeID, sourceTypeString, sourceStrength):
+        index = self.getNodeIndexbyID(nodeID)
+        assert isinstance(sourceTypeString, str)
+        sourceType = self.TYPESOURCE.index(sourceTypeString)
+        en.setnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCETYPE, value=sourceType)
+        en.setnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCEQUAL, value=sourceStrength)
+
+    def getNodeIndexbyID(self, nodeID):
+        index = en.getnodeindex(ph=self.epanet_proj, id=nodeID)
+        return index
+
+    def getNodeSourceType(self, nodeID):
+        index = self.getNodeIndexbyID(nodeID)
+        return en.getnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCETYPE)
+
+    def getNodeSourceQuality(self, nodeID):
+        index = self.getNodeIndexbyID(nodeID)
+        return en.getnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCEQUAL)
+
+
 
 
 if __name__ == "__main__":
@@ -437,15 +470,17 @@ if __name__ == "__main__":
     tstep = 1
     T_Q = list()
     time_HOURS= 30
-    Cn = np.zeros(shape=(proj.NodeCount,time_HOURS))
-    Cl = np.zeros(shape=(proj.LinkCount,time_HOURS))
+    Cn = np.zeros(shape=(proj.NodeCount, time_HOURS))
+    Cl = np.zeros(shape=(proj.LinkCount, time_HOURS))
     proj.solveCompleteHydraulics()
     proj.openQualityAnalysis()
-
-    proj.setSource(11)
-    proj.setSourceValue(11, 10)
-
     proj.initializeQualityAnalysis()
+    #proj.setNodeSourceType('10', 'MASS')
+    #proj.setNodeSourceQuality('10', 1000)
+    proj.setNodeSourceType_Quality('10', 'MASS', 1000)
+    print('The type of node 10 is:', proj.getNodeSourceType('10'))
+    print('The strength of node 10 is:', proj.getNodeSourceQuality('10'))
+
     while True:
         #print(tstep)
         proj.runQualityAnalysis()
@@ -472,12 +507,12 @@ if __name__ == "__main__":
 
     # plot quality for all nodes
     fig4 = plt.figure()
-    for nodei in range(0,proj.NodeCount):
-        if(proj.NodeTypeIndex[nodei] == 0):
+    for nodei in range(0, 2):
+        if (proj.NodeTypeIndex[nodei] == 0):
             labelstring = 'J' + proj.NodeID[nodei]
-        if(proj.NodeTypeIndex[nodei] == 1):
+        if (proj.NodeTypeIndex[nodei] == 1):
             labelstring = 'R' + proj.NodeID[nodei]
-        if(proj.NodeTypeIndex[nodei] == 2):
+        if (proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
         plt.step(range(0,counterQ),Cn[nodei],label=labelstring)
 
