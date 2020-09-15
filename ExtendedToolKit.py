@@ -1,4 +1,5 @@
 import sys
+
 if 'linux' in sys.platform:
     print("linux platform")
     import epanet.toolkit as en
@@ -7,7 +8,6 @@ elif 'darwin' in sys.platform:
     import epanetMac.toolkit as en
 else:
     raise RuntimeError("Unsupported operating system: {}".format(sys.platform))
-
 
 from test.data import example_1_path
 import numpy as np
@@ -29,14 +29,14 @@ class Prj:
         TYPEQUALITY = ['NONE', 'CHEM', 'AGE', 'TRACE',
                        'MULTIS']  # Constants for quality: 'NONE', 'CHEM', 'AGE', 'TRACE', 'MULTIS'
         TYPEREPORT = ['YES', 'NO', 'FULL']  # Constants for report: 'YES', 'NO', 'FULL'
-        self.TYPESOURCE = ['CONCEN', 'MASS', 'SETPOINT',
-                      'FLOWPACED']  # Constant for sources: 'CONCEN', 'MASS', 'SETPOINT', 'FLOWPACED'
+
+        self.TYPESOURCE = ['CONCEN', 'MASS', 'SETPOINT', 'FLOWPACED']  # Constant for sources: 'CONCEN', 'MASS', 'SETPOINT', 'FLOWPACED'
+
         TYPESTATS = ['NONE', 'AVERAGE', 'MINIMUM', 'MAXIMUM',
                      'RANGE']  # Constants for statistics: 'NONE', 'AVERAGE', 'MINIMUM', 'MAXIMUM', 'RANGE'
         TYPEUNITS = ['CFS', 'GPM', 'MGD', 'IMGD', 'AFD', 'LPS', 'LPM', 'MLD', 'CMH',
                      'CMD']  # Constants  for units: 'CFS', 'GPM', 'MGD', 'IMGD', 'AFD', 'LPS', 'LPM', 'MLD', 'CMH', 'CMD'
-        TYPEHEADLOSS = ['HW', 'DW',
-                        'CM']  # Constants of  headloss types: HW: Hazen - Williams, DW: Darcy - Weisbach, CM: Chezy - Manning
+        TYPEHEADLOSS = ['HW', 'DW', 'CM']  # Constants of  headloss types: HW: Hazen - Williams, DW: Darcy - Weisbach, CM: Chezy - Manning
         TYPESTATUS = ['CLOSED', 'OPEN']  # Link status
         self.epanet_proj = en.createproject()
         print('Loading:', network)
@@ -93,10 +93,6 @@ class Prj:
         self.ValveIndex = self.LinkIndex[temp: temp + self.ValveCount]
         self.ValveID = self.LinkID[temp: temp + self.ValveCount]
 
-
-
-
-
         print('Loading ends, and ready to go!')
 
     def getLinkTypeIndex(self):
@@ -129,7 +125,7 @@ class Prj:
             nodeID.append(type)
         return nodeID
 
-    def getNodeActualDemand(self): #todo establish actualdemand list (DONE!)
+    def getNodeActualDemand(self):  # todo establish actualdemand list (DONE!)
         value = range(1, self.NodeCount + 1)
         nodeActualDemand = list()
         for i in value:
@@ -139,13 +135,14 @@ class Prj:
             nodeActualDemand.append(type)
         return nodeActualDemand
 
-    def getNodeQuality(self): #finds chlorine concentration in nodes
+
+    def getNodeQuality(self):  # finds chlorine concentration in nodes
         C = np.zeros(shape=self.NodeCount)
         for i in self.NodeIndex:
             # print(i)
             quality = en.getnodevalue(ph=self.epanet_proj, index=i, property=en.QUALITY)
             # print(quality)
-            C[i-1] = quality
+            C[i - 1] = quality
         return C
 
     def getLinkQuality(self): #finds chlorine concentration in links
@@ -183,7 +180,7 @@ class Prj:
         return count
 
     # useless
-    #def getValveCount(self):
+    # def getValveCount(self):
     # pass
 
     def getReservoirCount(self):
@@ -235,7 +232,7 @@ class Prj:
 
     def nextHydraulicAnalysisStep(self):
         t = en.nextH(ph=self.epanet_proj)
-        #print(t)
+        # print(t)
         return t
 
     def runHydraulicAnalysis(self):
@@ -255,7 +252,7 @@ class Prj:
 
     def nextQualityAnalysisStep(self):
         t = en.nextQ(ph=self.epanet_proj)
-        print(t)
+        #print(t)
         return t
 
     def runQualityAnalysis(self):
@@ -265,14 +262,14 @@ class Prj:
         H = np.zeros(shape=self.NodeCount)
         for i in self.NodeIndex:
             head = en.getnodevalue(ph=self.epanet_proj, index=i, property=en.HEAD)
-            H[i-1] = head
+            H[i - 1] = head
         return H
 
     def getLinkFlow(self):
         Q = np.zeros(shape=self.LinkCount)
         for i in self.LinkIndex:
-            flow = en.getlinkvalue(ph=self.epanet_proj, index=i, property= en.FLOW)
-            Q[i-1] = flow
+            flow = en.getlinkvalue(ph=self.epanet_proj, index=i, property=en.FLOW)
+            Q[i - 1] = flow
         return Q
 
     def setNodeSourceType(self, nodeID, sourceType):
@@ -311,8 +308,6 @@ class Prj:
     def getNodeSourceQuality(self, nodeID):
         index = self.getNodeIndexbyID(nodeID)
         return en.getnodevalue(ph=self.epanet_proj, index=index, property=en.SOURCEQUAL)
-
-
 
 
 if __name__ == "__main__":
@@ -356,7 +351,6 @@ if __name__ == "__main__":
     print('Total valve type index is:', proj.ValveIndex)
     print('_______________________________')
 
-
     print('Total curve count is:', proj.CurveCount)
     print('Start hydraulic simulation:')
     print('_______________________________')
@@ -364,22 +358,22 @@ if __name__ == "__main__":
     counterH = 0
     tstep = 1
     T_H = list()
-    time_HOURS= 30
-    D = np.zeros(shape=(proj.NodeCount,time_HOURS))
-    H = np.zeros(shape=(proj.NodeCount,time_HOURS))
-    Q = np.zeros(shape=(proj.LinkCount,time_HOURS))
+    time_HOURS = 30
+    D = np.zeros(shape=(proj.NodeCount, time_HOURS))
+    H = np.zeros(shape=(proj.NodeCount, time_HOURS))
+    Q = np.zeros(shape=(proj.LinkCount, time_HOURS))
     proj.openHydraulicAnalysis()
     proj.initializeHydraulicAnalysis()
     while True:
-        #print(tstep)
+        # print(tstep)
         proj.runHydraulicAnalysis()
         head = proj.getNodeHydaulicHead()
         flow = proj.getLinkFlow()
-        demand = proj.getNodeActualDemand() 
-        #print(head)
+        demand = proj.getNodeActualDemand()
+        # print(head)
         H[:, counterH] = head
         Q[:, counterH] = flow
-        D[:, counterH] = demand 
+        D[:, counterH] = demand
         counterH = counterH + 1
         tstep = proj.nextHydraulicAnalysisStep()
         T_H.append(tstep)
@@ -389,77 +383,76 @@ if __name__ == "__main__":
     proj.closeHydraulicAnalysis()
     print('Hydraulic simulation ends')
     print('_______________________________')
-    #print(H)
-    #print(Q)
+    # print(H)
+    # print(Q)
 
     print('Organize data and plot:')
     print('_______________________________')
 
     # organize data and only keep nonzero data
-    H = H[:,0:counterH]
-    Q = Q[:,0:counterH]
-    D = D[:,0:counterH]
-    #print(counterH)
-    #print(H[0])
+    H = H[:, 0:counterH]
+    Q = Q[:, 0:counterH]
+    D = D[:, 0:counterH]
+    # print(counterH)
+    # print(H[0])
 
     # plot head for all nodes
     fig1 = plt.figure()
-    for nodei in range(0,proj.NodeCount):
-        if(proj.NodeTypeIndex[nodei] == 0):
+    for nodei in range(0, proj.NodeCount):
+        if (proj.NodeTypeIndex[nodei] == 0):
             labelstring = 'J' + proj.NodeID[nodei]
-        if(proj.NodeTypeIndex[nodei] == 1):
+        if (proj.NodeTypeIndex[nodei] == 1):
             labelstring = 'R' + proj.NodeID[nodei]
-        if(proj.NodeTypeIndex[nodei] == 2):
+        if (proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.step(range(0,counterH),H[nodei],label=labelstring)
+        plt.step(range(0, counterH), H[nodei], label=labelstring)
 
     plt.title('Heads at all nodes')
     plt.xlabel('Time (hour)')
     plt.ylabel('Head (ft)')
     plt.legend()
     print('close the figure to continue...')
-    #plt.show()
+    # plt.show()
     fig1.savefig('head.png')
 
     # plot flow rates
     fig2 = plt.figure()
-    for linki in range(0,proj.LinkCount):
-        if(proj.LinkTypeIndex[linki] == 1):
+    for linki in range(0, proj.LinkCount):
+        if (proj.LinkTypeIndex[linki] == 1):
             labelstring = 'P' + proj.LinkID[linki]
-        elif(proj.LinkTypeIndex[linki] == 2):
+        elif (proj.LinkTypeIndex[linki] == 2):
             labelstring = 'Pu' + proj.LinkID[linki]
         else:
             labelstring = 'V' + proj.LinkID[linki]
-        plt.step(range(0,counterH),Q[linki],label=labelstring)
+        plt.step(range(0, counterH), Q[linki], label=labelstring)
 
     plt.title('Flow rates at all links')
     plt.xlabel('Time (hour)')
     plt.ylabel('Flow (GPM)')
     plt.legend()
     print('close the figure to continue...')
-    #plt.show()
+    # plt.show()
     fig2.savefig('Flow.png')
 
     # todo: plot demand for all nodes (DONE!)
     # plot demand for all nodes
     fig3 = plt.figure()
-    for nodei in range(0,proj.NodeCount):
-        if(proj.NodeTypeIndex[nodei] == 0):
+    for nodei in range(0, proj.NodeCount):
+        if (proj.NodeTypeIndex[nodei] == 0):
             labelstring = 'J' + proj.NodeID[nodei]
-        if(proj.NodeTypeIndex[nodei] == 1):
+        if (proj.NodeTypeIndex[nodei] == 1):
             labelstring = 'R' + proj.NodeID[nodei]
-        if(proj.NodeTypeIndex[nodei] == 2):
+        if (proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.step(range(0,counterH),D[nodei],label=labelstring)
+        plt.step(range(0, counterH), D[nodei], label=labelstring)
 
     plt.title('Demand at all nodes')
     plt.xlabel('Time (hour)')
     plt.ylabel('Demand (GPM)')
     plt.legend()
     print('close the figure to continue...')
-    #plt.show()
+    # plt.show()
     fig3.savefig('demand.png')
-
 
     print('Start quality simulation:')
     print('_______________________________')
@@ -469,9 +462,11 @@ if __name__ == "__main__":
     counterQ = 0
     tstep = 1
     T_Q = list()
+
     time_HOURS= 30
     Cn = np.zeros(shape=(proj.NodeCount, time_HOURS))
     Cl = np.zeros(shape=(proj.LinkCount, time_HOURS))
+
     proj.solveCompleteHydraulics()
     proj.openQualityAnalysis()
     proj.initializeQualityAnalysis()
@@ -482,13 +477,15 @@ if __name__ == "__main__":
     print('The strength of node 10 is:', proj.getNodeSourceQuality('10'))
 
     while True:
-        #print(tstep)
+        # print(tstep)
         proj.runQualityAnalysis()
+
         chlorineN = proj.getNodeQuality()
         chlorineL = proj.getLinkQuality()
         #print(chlorine)
         Cn[:, counterQ] = chlorineN
         Cl[:, counterQ] = chlorineL
+
         counterQ = counterQ + 1
         tstep = proj.nextQualityAnalysisStep()
         T_Q.append(tstep)
@@ -498,15 +495,18 @@ if __name__ == "__main__":
     proj.closeQualityAnalysis()
     print('Quality simulation ends')
     print('_______________________________')
+
     print('Organize data and plot:')
     print('_______________________________')
 
     # organize data and only keep nonzero data
+
     Cn = Cn[:,0:counterQ]
     Cl = Cl[:,0:counterQ]
 
     # plot quality for all nodes
     fig4 = plt.figure()
+
     for nodei in range(0, 2):
         if (proj.NodeTypeIndex[nodei] == 0):
             labelstring = 'J' + proj.NodeID[nodei]
@@ -516,12 +516,14 @@ if __name__ == "__main__":
             labelstring = 'TK' + proj.NodeID[nodei]
         plt.step(range(0,counterQ),Cn[nodei],label=labelstring)
 
+
     plt.title('Quality at all nodes')
     plt.xlabel('Time (hour)')
     plt.ylabel('Chlorine (mg/L)')
     plt.legend()
     print('close the figure to continue...')
     plt.show()
+
     fig4.savefig('nodeQuality.png')
 
     # plot quality for all links
