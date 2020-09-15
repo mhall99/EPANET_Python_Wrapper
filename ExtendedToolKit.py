@@ -145,13 +145,13 @@ class Prj:
             C[i - 1] = quality
         return C
 
-    def getLinkQuality(self): #finds chlorine concentration in links
+    def getLinkQuality(self):  # finds chlorine concentration in links
         C = np.zeros(shape=self.LinkCount)
         for i in self.LinkIndex:
             # print(i)
-            quality = en.getlinkvalue(ph=self.epanet_proj, index=i, property=en.QUALITY)
+            quality = en.getlinkvalue(ph=self.epanet_proj, index=i, property=en.LINKQUAL)
             # print(quality)
-            C[i-1] = quality
+            C[i - 1] = quality
         return C
 
     def getLinkID(self):
@@ -434,7 +434,6 @@ if __name__ == "__main__":
     # plt.show()
     fig2.savefig('Flow.png')
 
-    # todo: plot demand for all nodes (DONE!)
     # plot demand for all nodes
     fig3 = plt.figure()
     for nodei in range(0, proj.NodeCount):
@@ -456,22 +455,20 @@ if __name__ == "__main__":
 
     print('Start quality simulation:')
     print('_______________________________')
-    # todo: finish quality simulation and collect the concentration at all nodes and in all links
-    # todo: plot chlorine concentration  for all nodes and links
 
     counterQ = 0
     tstep = 1
     T_Q = list()
 
-    time_HOURS= 30
+    time_HOURS = 30
     Cn = np.zeros(shape=(proj.NodeCount, time_HOURS))
     Cl = np.zeros(shape=(proj.LinkCount, time_HOURS))
 
     proj.solveCompleteHydraulics()
     proj.openQualityAnalysis()
     proj.initializeQualityAnalysis()
-    #proj.setNodeSourceType('10', 'MASS')
-    #proj.setNodeSourceQuality('10', 1000)
+    # proj.setNodeSourceType('10', 'MASS')
+    # proj.setNodeSourceQuality('10', 1000)
     proj.setNodeSourceType_Quality('10', 'MASS', 1000)
     print('The type of node 10 is:', proj.getNodeSourceType('10'))
     print('The strength of node 10 is:', proj.getNodeSourceQuality('10'))
@@ -482,7 +479,7 @@ if __name__ == "__main__":
 
         chlorineN = proj.getNodeQuality()
         chlorineL = proj.getLinkQuality()
-        #print(chlorine)
+        # print(chlorine)
         Cn[:, counterQ] = chlorineN
         Cl[:, counterQ] = chlorineL
 
@@ -501,62 +498,57 @@ if __name__ == "__main__":
 
     # organize data and only keep nonzero data
 
-    Cn = Cn[:,0:counterQ]
-    Cl = Cl[:,0:counterQ]
+    Cn = Cn[:, 0:counterQ]
+    Cl = Cl[:, 0:counterQ]
 
     # plot quality for all nodes
     fig4 = plt.figure()
 
-    for nodei in range(0, 2):
+    for nodei in range(0, proj.NodeCount):
         if (proj.NodeTypeIndex[nodei] == 0):
             labelstring = 'J' + proj.NodeID[nodei]
         if (proj.NodeTypeIndex[nodei] == 1):
             labelstring = 'R' + proj.NodeID[nodei]
         if (proj.NodeTypeIndex[nodei] == 2):
             labelstring = 'TK' + proj.NodeID[nodei]
-        plt.step(range(0,counterQ),Cn[nodei],label=labelstring)
-
+        plt.step(range(0, counterQ), Cn[nodei], label=labelstring)
 
     plt.title('Quality at all nodes')
     plt.xlabel('Time (hour)')
     plt.ylabel('Chlorine (mg/L)')
     plt.legend()
     print('close the figure to continue...')
-    plt.show()
+    #plt.show()
 
     fig4.savefig('nodeQuality.png')
 
     # plot quality for all links
     fig5 = plt.figure()
-    for nodei in range(0,proj.LinkCount):
-        if(proj.LinkTypeIndex[nodei] == 0):
-            labelstring = 'CVP' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 1):
-            labelstring = 'P' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 2):
-            labelstring = 'Pu' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 3):
-            labelstring = 'PRV' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 4):
-            labelstring = 'PSV' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 5):
-            labelstring = 'PBV' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 6):
-            labelstring = 'FCV' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 7):
-            labelstring = 'TCV' + proj.LinkID[nodei]
-        if(proj.LinkTypeIndex[nodei] == 8):
-            labelstring = 'GPV' + proj.LinkID[nodei]
-        plt.step(range(0,counterQ),Cl[nodei],label=labelstring)
+    for linki in range(0, proj.LinkCount):
+        if (proj.LinkTypeIndex[linki] == 0):
+            labelstring = 'CVP' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 1):
+            labelstring = 'P' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 2):
+            labelstring = 'Pu' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 3):
+            labelstring = 'PRV' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 4):
+            labelstring = 'PSV' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 5):
+            labelstring = 'PBV' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 6):
+            labelstring = 'FCV' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 7):
+            labelstring = 'TCV' + proj.LinkID[linki]
+        if (proj.LinkTypeIndex[linki] == 8):
+            labelstring = 'GPV' + proj.LinkID[linki]
+        plt.step(range(0, counterQ), Cl[linki], label=labelstring)
 
-    plt.title('Quality at all links')
+    plt.title('Quality in all links')
     plt.xlabel('Time (hour)')
     plt.ylabel('Chlorine (mg/L)')
     plt.legend()
     print('close the figure to continue...')
-    plt.show()
+    #plt.show()
     fig5.savefig('linkQuality.png')
-
-
-
-
